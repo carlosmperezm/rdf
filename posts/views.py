@@ -2,12 +2,16 @@
 
 from typing import Iterable, Any
 
+from django.shortcuts import get_object_or_404
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 
-from posts.serializer import PostSerializer, Post
+from posts.serializer import PostSerializer
+
+from posts.models import Post
 
 
 class PostListView(APIView):
@@ -30,11 +34,21 @@ class PostListView(APIView):
 
 
 class PostDetailView(APIView):
-    def get(self, request: Request) -> Response:
+    """View for each post"""
+
+    def get(self, _request: Request, id: int) -> Response:
+        """Get one post"""
+        post: Post = Post.objects.get(pk=id)
+        serializer: PostSerializer = PostSerializer(instance=post)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request: Request, id: int) -> Response:
+        """Update a post"""
         return Response()
 
-    def put(self, request: Request) -> Response:
-        return Response()
-
-    def delete(self, request: Request) -> Response:
-        return Response()
+    def delete(self, _request: Request, id: int) -> Response:
+        """Delete a post"""
+        post: Post = get_object_or_404(Post, pk=id)
+        post.delete()
+        response: dict[str, str] = {"Message": "Deleted"}
+        return Response(data=response, status=status.HTTP_200_OK)
