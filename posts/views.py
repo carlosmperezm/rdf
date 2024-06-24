@@ -36,19 +36,25 @@ class PostListView(APIView):
 class PostDetailView(APIView):
     """View for each post"""
 
-    def get(self, _request: Request, id: int) -> Response:
+    def get(self, _request: Request, post_id: int) -> Response:
         """Get one post"""
-        post: Post = Post.objects.get(pk=id)
+        post: Post = Post.objects.get(pk=post_id)
         serializer: PostSerializer = PostSerializer(instance=post)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request: Request, id: int) -> Response:
+    def put(self, request: Request, post_id: int) -> Response:
         """Update a post"""
-        return Response()
+        data: dict[str, Any] = request.data
+        post: Post = get_object_or_404(Post, pk=post_id)
+        serializer: PostSerializer = PostSerializer(instance=post, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, _request: Request, id: int) -> Response:
+    def delete(self, _request: Request, post_id: int) -> Response:
         """Delete a post"""
-        post: Post = get_object_or_404(Post, pk=id)
+        post: Post = get_object_or_404(Post, pk=post_id)
         post.delete()
         response: dict[str, str] = {"Message": "Deleted"}
         return Response(data=response, status=status.HTTP_200_OK)

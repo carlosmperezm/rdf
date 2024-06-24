@@ -1,6 +1,6 @@
 """All the serializers of the posts app"""
 
-from rest_framework.serializers import ModelSerializer, CharField
+from rest_framework.serializers import ModelSerializer
 from posts.models import Post
 
 

@@ -5,5 +5,5 @@ from posts.views import PostListView, PostDetailView
 
 urlpatterns: list[URLPattern] = [
     path("", PostListView.as_view(), name="posts_list"),
-    path("<int:id>", PostDetailView.as_view(), name="post_detail"),
+    path("<int:post_id>", PostDetailView.as_view(), name="post_detail"),
 ]
