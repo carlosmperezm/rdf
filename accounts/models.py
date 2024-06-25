@@ -1,3 +1,5 @@
+"""User models"""
+
 from typing import override, Any
 from django.db.models import CharField, EmailField, DateField
 from django.contrib.auth.base_user import BaseUserManager
@@ -15,6 +17,8 @@ class CustomUserManager(BaseUserManager):
         **extra_fields: dict[str, Any]
     ) -> AbstractUser:
         """Create a new user"""
+        if not username:
+            raise ValueError("The given username must be set")
         user: AbstractUser = self.model(
             email=self.normalize_email(email), username=username, **extra_fields
         )
