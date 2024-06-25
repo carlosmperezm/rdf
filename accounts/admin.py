@@ -1,3 +1,6 @@
-from django.contrib import admin
+"""File to manage the admin site for the accounts app"""
 
-# Register your models here.
+from django.contrib import admin
+from accounts.models import User
+
+admin.site.register(User)
