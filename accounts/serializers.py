@@ -3,6 +3,7 @@
 from typing import Any, override
 
 from rest_framework.serializers import ModelSerializer
+from rest_framework.authtoken.models import Token
 
 from accounts.models import User
 
@@ -22,4 +23,7 @@ class UserSerializer(ModelSerializer):
         user: User = super().create(validated_data)
         user.set_password(raw_password=password)
         user.save()
+
+        Token.objects.create(user=user)
+
         return user

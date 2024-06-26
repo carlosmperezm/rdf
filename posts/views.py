@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from posts.serializer import PostSerializer
 
@@ -16,6 +17,8 @@ from posts.models import Post
 
 class PostListView(APIView):
     """View to manage get the post and create a new ones"""
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, _request: Request) -> Response:
         """Return all the posts"""
@@ -35,6 +38,8 @@ class PostListView(APIView):
 
 class PostDetailView(APIView):
     """View for each post"""
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, _request: Request, post_id: int) -> Response:
         """Get one post"""

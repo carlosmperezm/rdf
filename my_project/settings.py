@@ -38,11 +38,20 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "accounts",
     "posts",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAUTLT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated"),
+}
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

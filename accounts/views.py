@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 
 from accounts.serializers import UserSerializer
 
@@ -33,11 +35,19 @@ class LoginView(APIView):
         """Method to log in a user"""
         password: str | None = request.data.get("password")
         email: str | None = request.data.get("email")
-        user: AbstractBaseUser | None = authenticate(
-            request, password=password, email=email
-        )
+        user: AbstractBaseUser | None = authenticate(email=email, password=password)
         if user is not None:
-            serializer: UserSerializer = UserSerializer(instance=user)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+            token: Token | None = Token.objects.get(user=user)
+            data: dict[str, Any] = {
+                "message": "Login successfully",
+                "token": str(token.key),
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
         response: dict[str, Any] = {"message": "Error trying to validate the user"}
         return Response(data=response, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request: Request) -> Response:
+        """Get information about the current user"""
+        data: dict[str, Any] = {"user": str(request.user), "token": str(request.auth)}
+
+        return Response(data=data, status=status.HTTP_200_OK)
