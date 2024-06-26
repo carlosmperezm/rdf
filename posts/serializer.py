@@ -10,6 +10,10 @@ class PostSerializer(ModelSerializer):
 
     author: StringRelatedField = StringRelatedField(read_only=True)
 
+    @override
+    def create(self, validated_data: Any) -> Any:
+        return super().create(validated_data)
+
     class Meta:
         """Necessary class for parents class functionality"""
 
