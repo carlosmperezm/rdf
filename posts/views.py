@@ -29,6 +29,7 @@ class PostListView(APIView):
 
     def post(self, request: Request) -> Response:
         """create a new post"""
+        # TODO Add the author to the new post
         data: dict[str, Any] = request.data
         serializer: PostSerializer = PostSerializer(data=data)
         if serializer.is_valid():
@@ -46,7 +47,7 @@ class PostDetailView(APIView):
         user: AbstractBaseUser | AnonymousUser = request.user
 
         if post.author.pk != user.pk:
-            permission_error: dict[str, Any] = {
+            permission_error: dict[str, str] = {
                 "error": "You do not have enough permissions to retrieve this post "
             }
             return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
@@ -61,7 +62,7 @@ class PostDetailView(APIView):
         user: AbstractBaseUser | AnonymousUser = request.user
 
         if post.author.pk != user.pk:
-            permission_error: dict[str | Any] = {
+            permission_error: dict[str, str] = {
                 "error": "You do not have enough permissions to update this posts"
             }
             return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
@@ -78,7 +79,7 @@ class PostDetailView(APIView):
         user: AbstractBaseUser | AnonymousUser = request.user
 
         if post.author.pk != user.pk:
-            permission_error: dict[str | Any] = {
+            permission_error: dict[str, Any] = {
                 "error": "You do not have enough permissions to delete this posts"
             }
             return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
