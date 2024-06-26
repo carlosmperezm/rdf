@@ -39,8 +39,6 @@ class PostListView(APIView):
 class PostDetailView(APIView):
     """View for each post"""
 
-    permission_classes = [IsAuthenticated]
-
     def get(self, _request: Request, post_id: int) -> Response:
         """Get one post"""
         post: Post = Post.objects.get(pk=post_id)
