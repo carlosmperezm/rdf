@@ -29,11 +29,13 @@ class PostListView(APIView):
 
     def post(self, request: Request) -> Response:
         """create a new post"""
-        # TODO Add the author to the new post
         data: dict[str, Any] = request.data
+        user: AbstractBaseUser | AnonymousUser = request.user
+
+        # data["user"] = user
         serializer: PostSerializer = PostSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(author=user)
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
