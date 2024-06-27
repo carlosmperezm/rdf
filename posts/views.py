@@ -32,7 +32,6 @@ class PostListView(APIView):
         data: dict[str, Any] = request.data
         user: AbstractBaseUser | AnonymousUser = request.user
 
-        # data["user"] = user
         serializer: PostSerializer = PostSerializer(data=data)
         if serializer.is_valid():
             serializer.save(author=user)

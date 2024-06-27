@@ -2,7 +2,9 @@
 
 from typing import Any, override
 
-from rest_framework.serializers import ModelSerializer
+from django.db.models import Model
+
+from rest_framework.serializers import ModelSerializer, StringRelatedField
 from rest_framework.authtoken.models import Token
 
 from accounts.models import User
@@ -10,6 +12,8 @@ from accounts.models import User
 
 class UserSerializer(ModelSerializer):
     """Serializer to serialize the user model"""
+
+    posts: StringRelatedField[Model] = StringRelatedField(many=True, read_only=True)
 
     class Meta:
         """Necessary class fot the parent class"""
@@ -19,7 +23,7 @@ class UserSerializer(ModelSerializer):
 
     @override
     def create(self, validated_data: dict[str, Any] | Any) -> User:
-        password: str = validated_data.pop("password")
+        password: str | None = validated_data.pop("password", None)
         user: User = super().create(validated_data)
         user.set_password(raw_password=password)
         user.save()
