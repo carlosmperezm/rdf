@@ -9,11 +9,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from posts.serializer import PostSerializer
-
 from posts.models import Post
+from posts.permissions import IsAuthorOrReadOnly
 
 
 class PostListView(APIView):
@@ -42,17 +42,12 @@ class PostListView(APIView):
 class PostDetailView(APIView):
     """View for each post"""
 
+    permission_classes = [IsAdminUser | IsAuthorOrReadOnly]
+
     def get(self, request: Request, post_id: int) -> Response:
         """Get one post"""
         post: Post = get_object_or_404(Post, pk=post_id)
-        user: AbstractBaseUser | AnonymousUser = request.user
-
-        if post.author.pk != user.pk:
-            permission_error: dict[str, str] = {
-                "error": "You do not have enough permissions to retrieve this post "
-            }
-            return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
-
+        self.check_object_permissions(request, post)
         serializer: PostSerializer = PostSerializer(instance=post)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -60,14 +55,7 @@ class PostDetailView(APIView):
         """Update a post"""
         data: dict[str, Any] = request.data
         post: Post = get_object_or_404(Post, pk=post_id)
-        user: AbstractBaseUser | AnonymousUser = request.user
-
-        if post.author.pk != user.pk:
-            permission_error: dict[str, str] = {
-                "error": "You do not have enough permissions to update this posts"
-            }
-            return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
-
+        self.check_object_permissions(request, post)
         serializer: PostSerializer = PostSerializer(instance=post, data=data)
         if serializer.is_valid():
             serializer.save()
@@ -77,14 +65,7 @@ class PostDetailView(APIView):
     def delete(self, request: Request, post_id: int) -> Response:
         """Delete a post"""
         post: Post = get_object_or_404(Post, pk=post_id)
-        user: AbstractBaseUser | AnonymousUser = request.user
-
-        if post.author.pk != user.pk:
-            permission_error: dict[str, Any] = {
-                "error": "You do not have enough permissions to delete this posts"
-            }
-            return Response(data=permission_error, status=status.HTTP_401_UNAUTHORIZED)
-
+        self.check_object_permissions(request, post)
         post.delete()
         response: dict[str, str] = {"Message": "Deleted"}
         return Response(data=response, status=status.HTTP_200_OK)
