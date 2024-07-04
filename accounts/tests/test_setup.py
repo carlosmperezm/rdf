@@ -1,3 +1,5 @@
+"""All the set up configurations """
+
 from typing import override
 
 from rest_framework.test import APITestCase
@@ -5,6 +7,8 @@ from django.urls import reverse
 
 
 class TestSetUP(APITestCase):
+    """Class for inheritance purposes"""
+
     @override
     def setUp(self) -> None:
         self.signup_url: str = reverse("signup")
