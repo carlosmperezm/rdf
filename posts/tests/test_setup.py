@@ -1,6 +1,6 @@
 """Configs to apply before tests get run """
 
-from typing import override
+from typing import override, Any
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
@@ -27,6 +27,13 @@ class TestSetUp(APITestCase):
             "username": "user2",
             "password": "user2password",
         }
+        self.admin_user: dict[str, Any] = {
+            "email": "admin@test.com",
+            "username": "admin",
+            "password": "adminpassword123",
+            "is_admin": True,
+            "is_staff": True,
+        }
 
         self.client.post(
             path=reverse("signup"),
@@ -36,6 +43,7 @@ class TestSetUp(APITestCase):
             path=reverse("signup"),
             data=self.user_data2,
         )
+        self.client.post(path=reverse("signup"), data=self.admin_user)
 
         self.token_key: str = self.client.post(
             path=reverse("login"), data=self.user_data
@@ -43,6 +51,10 @@ class TestSetUp(APITestCase):
 
         self.token_key2: str = self.client.post(
             path=reverse("login"), data=self.user_data2
+        ).data.get("token")
+
+        self.token_admin: str = self.client.post(
+            path=reverse("login"), data=self.admin_user
         ).data.get("token")
 
         return super().setUp()

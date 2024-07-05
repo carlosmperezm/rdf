@@ -20,6 +20,15 @@ class TestPostList(TestSetUp):
         )
         self.assertEqual(response.data.get("author"), self.user_data.get("username"))
 
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_admin)
+        response = self.client.post(path=self.posts_url, data=self.post_data)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.data.get("title"), self.post_data.get("title"))
+        self.assertEqual(
+            response.data.get("description"), self.post_data.get("description")
+        )
+        self.assertEqual(response.data.get("author"), self.admin_user.get("username"))
+
     def test_post_creation_with_no_credentials(self) -> None:
         """Ensure the user must be authenticated to create new posts"""
         response: Response = self.client.post(path=self.posts_url, data=self.post_data)
@@ -30,7 +39,7 @@ class TestPostList(TestSetUp):
             "Authentication credentials were not provided.",
         )
 
-    def test_post_creation_with_wrong_credentials(self) -> None:
+    def test_post_creation_with_other_credentials(self) -> None:
         """Ensure the user must be authenticated with the correct token to create new posts"""
         self.client.credentials(
             HTTP_AUTHORIZATION="Token " + self.token_key + "1f2g3asdf"

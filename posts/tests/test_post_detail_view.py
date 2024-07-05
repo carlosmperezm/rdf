@@ -56,7 +56,7 @@ class TestPostDetail(TestSetUp):
         )
         self.assertEqual(response.data.get("author"), self.user_data.get("username"))
 
-    def test_get_post_by_wrong_credentials(self) -> None:
+    def test_get_post_by_other_credentials(self) -> None:
         """Ensure the view do not allow to show any data if the user insert the wrond token"""
         self._create_posts(3)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + "asdf2s" + self.token_key)
@@ -120,13 +120,13 @@ class TestPostDetail(TestSetUp):
             "Authentication credentials were not provided.",
         )
 
-    def test_update_post_with_wrong_credentials(self) -> None:
+    def test_update_post_with_other_credentials(self) -> None:
         """Ensure the view not update the post with not correct the credentials"""
         self._create_posts(1)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + "xdxd")
         updated_data: dict[str, str] = {
-            "title": "New title updated",
-            "description": "Updated description",
+            "title": "New title updated by admin",
+            "description": "Updated description by admin",
         }
         response: Response = self.client.put(
             path=self.post_detail_url, data=updated_data
@@ -145,6 +145,15 @@ class TestPostDetail(TestSetUp):
             "You do not have permission to perform this action.",
         )
 
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_admin)
+        response = self.client.put(path=self.post_detail_url, data=updated_data)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data.get("title"), updated_data.get("title"))
+        self.assertEqual(
+            response.data.get("description"), updated_data.get("description")
+        )
+        self.assertEqual(response.data.get("author"), self.user_data.get("username"))
+
     def test_delete_post(self) -> None:
         """Test the view delete correctly the post"""
         posts_quantity: int = 4
@@ -155,9 +164,11 @@ class TestPostDetail(TestSetUp):
 
         response: Response = self.client.delete(path=self.post_detail_url)
         posts: Response = self.client.get(path=self.posts_url)
-        post_deleted: int = self.client.get(path=self.post_detail_url).status_code
+        exists_post_status_code: int = self.client.get(
+            path=self.post_detail_url
+        ).status_code
 
-        self.assertEqual(post_deleted, HTTP_404_NOT_FOUND)
+        self.assertEqual(exists_post_status_code, HTTP_404_NOT_FOUND)
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(len(posts.data), posts_quantity - 1)
 
@@ -189,7 +200,7 @@ class TestPostDetail(TestSetUp):
             "Authentication credentials were not provided.",
         )
 
-    def test_delete_post_with_wrong_credentials(self) -> None:
+    def test_delete_post_with_other_credentials(self) -> None:
         """Ensure the view no do not delete if no correct credentials were provided"""
         posts_quantity: int = 1
         self._create_posts(posts_quantity)
@@ -211,3 +222,14 @@ class TestPostDetail(TestSetUp):
             str(response.data.get("detail")),
             "You do not have permission to perform this action.",
         )
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_admin)
+        response = self.client.delete(path=self.post_detail_url)
+        posts: Response = self.client.get(path=self.posts_url)
+        exists_post_status_code: int = self.client.get(
+            path=self.post_detail_url
+        ).status_code
+
+        self.assertEqual(exists_post_status_code, HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(posts.data), posts_quantity - 1)
