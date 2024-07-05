@@ -20,9 +20,7 @@ class TestSignup(TestSetUP):
 
     def test_signup(self) -> None:
         """Test the register a user with the correct information"""
-        response: Response = self.client.post(
-            path=self.signup_url, data=self.user_data, format="json"
-        )
+        response: Response = self.client.post(path=self.signup_url, data=self.user_data)
         user: User = User.objects.get(email=self.user_data.get("email"))
 
         serializer: UserSerializer = UserSerializer(instance=user)
@@ -46,7 +44,7 @@ class TestLogin(TestSetUP):
 
     def test_login(self) -> None:
         """Testing user login with the correct credentials"""
-        self.client.post(path=self.signup_url, data=self.user_data, format="json")
+        self.client.post(path=self.signup_url, data=self.user_data)
 
         response: Response = self.client.post(
             path=self.login_url,
@@ -58,7 +56,7 @@ class TestLogin(TestSetUP):
 
     def test_login_with_wrong_credentials(self) -> None:
         """Testing if the user insert an incorrect password or email"""
-        self.client.post(path=self.signup_url, data=self.user_data, format="json")
+        self.client.post(path=self.signup_url, data=self.user_data)
 
         copy_data: dict[str, str] = self.user_data.copy()
         copy_data["password"] = "mypassword#123"
@@ -75,9 +73,9 @@ class TestUserInfo(TestSetUP):
     """UserInfo View Tests"""
 
     def _get_token(self) -> str:
-        self.client.post(path=self.signup_url, data=self.user_data, format="json")
+        self.client.post(path=self.signup_url, data=self.user_data)
         token_key: str = self.client.post(
-            path=self.login_url, data=self.user_data, format="json"
+            path=self.login_url, data=self.user_data
         ).data.get("token")
         return token_key
 
@@ -87,7 +85,7 @@ class TestUserInfo(TestSetUP):
 
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token_key)
 
-        response: Response = self.client.get(path=self.userinfo_url, format="json")
+        response: Response = self.client.get(path=self.userinfo_url)
 
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(response.data.get("email"), self.user_data.get("email"))
@@ -98,7 +96,7 @@ class TestUserInfo(TestSetUP):
         token_key: str = self._get_token() + "asdfasdf"
         self.client.credentials(HTTP_AUTHORIZATION="Token " + token_key)
         response: Response = self.client.get(
-            path=self.userinfo_url, data=self.user_data, format="json"
+            path=self.userinfo_url, data=self.user_data
         )
 
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
@@ -109,7 +107,7 @@ class TestUserInfo(TestSetUP):
         self._get_token()
 
         response: Response = self.client.get(
-            path=self.userinfo_url, data=self.user_data, format="json"
+            path=self.userinfo_url, data=self.user_data
         )
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.data.get("detail").code, "not_authenticated")

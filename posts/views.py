@@ -11,7 +11,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAdminUser,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.serializers import BaseSerializer
 
 from posts.serializer import PostSerializer
@@ -22,7 +26,7 @@ from posts.permissions import IsAuthorOrReadOnly
 class PostListView(APIView):
     """View to manage get the post and create a new ones"""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, _request: Request) -> Response:
         """Return all the posts"""
