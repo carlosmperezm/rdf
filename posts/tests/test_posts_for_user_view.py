@@ -1,4 +1,4 @@
-"""All tests for PostForUser View"""
+"""All tests for PostsForUser View"""
 
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
@@ -7,7 +7,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
 from posts.tests.test_setup import TestSetUp
 
 
-class TestPostForUser(TestSetUp):
+class TestPostsForUser(TestSetUp):
     """Test for Post For User View"""
 
     def test_get_posts_for_current_user(self) -> None:
@@ -19,7 +19,6 @@ class TestPostForUser(TestSetUp):
 
         self.assertEqual(respnse.status_code, HTTP_200_OK)
         self.assertEqual(len(respnse.data), posts_quantity)
-
         map(
             lambda post: self.assertEqual(
                 post.get("author"), self.user_data.get("username")
@@ -27,7 +26,7 @@ class TestPostForUser(TestSetUp):
             respnse.data,
         )
 
-    def test_get_posts_for_current_user_with_no_auth(self) -> None:
+    def test_get_posts_for_current_user_with_no_credentials(self) -> None:
         """Ensure the view cannot display all the posts of the current user
         if the user is not authenticated"""
         posts_quantity: int = 1
@@ -52,4 +51,16 @@ class TestPostForUser(TestSetUp):
         self.assertEqual(
             str(respnse.data.get("detail")),
             "Invalid token.",
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_key2)
+        response = self.client.get(path=self.post_for_this_user_url)
+
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(respnse.data), posts_quantity)
+        map(
+            lambda post: self.assertEqual(
+                post.get("author"), self.user_data.get("username")
+            ),
+            respnse.data,
         )

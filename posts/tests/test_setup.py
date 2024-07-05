@@ -22,15 +22,29 @@ class TestSetUp(APITestCase):
             "username": "usertest",
             "password": "password1234test",
         }
+        self.user_data2: dict[str, str] = {
+            "email": "user2@test2.com",
+            "username": "user2",
+            "password": "user2password",
+        }
 
         self.client.post(
-            path="http://localhost:8000/auth/signup/",
+            path=reverse("signup"),
             data=self.user_data,
+        )
+        self.client.post(
+            path=reverse("signup"),
+            data=self.user_data2,
         )
 
         self.token_key: str = self.client.post(
-            path="http://localhost:8000/auth/login/", data=self.user_data
+            path=reverse("login"), data=self.user_data
         ).data.get("token")
+
+        self.token_key2: str = self.client.post(
+            path=reverse("login"), data=self.user_data2
+        ).data.get("token")
+
         return super().setUp()
 
     @override
