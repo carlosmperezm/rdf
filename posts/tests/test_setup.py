@@ -36,3 +36,9 @@ class TestSetUp(APITestCase):
     @override
     def tearDown(self) -> None:
         return super().tearDown()
+
+    def _create_posts(self, posts_quantity: int) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_key)
+        for _ in range(posts_quantity):
+            self.client.post(path=self.posts_url, data=self.post_data)
+        self.client.credentials()

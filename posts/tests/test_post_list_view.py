@@ -40,12 +40,6 @@ class TestPostList(TestSetUp):
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
         self.assertEqual(str(response.data.get("detail")), "Invalid token.")
 
-    def _create_posts(self, posts_quantity: int) -> None:
-        self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_key)
-        for _ in range(posts_quantity):
-            self.client.post(path=self.posts_url, data=self.post_data)
-        self.client.credentials()
-
     def test_post_list_with_credentials(self) -> None:
         """Ensure can display all the posts that were created before"""
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token_key)

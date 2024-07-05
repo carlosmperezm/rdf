@@ -79,7 +79,7 @@ class PostDetailView(APIView):
 
 
 class PostsForUserView(GenericAPIView):
-    """Manage all the posts created by the current user"""
+    """Show all the posts created by the current user"""
 
     permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
